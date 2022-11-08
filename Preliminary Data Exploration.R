@@ -62,15 +62,32 @@ d$SL<- standardize(d$Landscape)
 d$SA<- standardize(d$Area)
 d$SC<- d$distinct_Species.Code
 
-Veg_Area_Landscape <- quap(
+Area_Landscape <- quap(
   alist(
     SC ~ dnorm( mu , sigma ) ,
-    mu <- a[Veg] + bSL*SL + bSA*SA,
-    a[Veg] ~ dnorm( 0 , 1 ) ,
+    mu <- a + bSL*SL + bSA*SA,
+    a ~ dnorm( 0 , 1 ) ,
     bSL ~ dnorm( 0 , 1 ),
     bSA ~ dnorm( 0 , 1 ),
     sigma ~ dexp( 1 )
   ) , data = d )
 
-precis(HGboth, depth = 2)
-plot(precis(HGboth, depth = 2))
+ALprior <- extract.prior( Area_Landscape )
+mu <- link( Area_Landscape, post=ALprior , data=list( SL=c(-2,2) ) )
+plot( NULL , xlim=c(-2,2) , ylim=c(-2,2), xlab = "Standardized Landscape", ylab = "Species Count" )
+for ( i in 1:50 ) lines( c(-2,2) , mu[i,] , col=col.alpha("black",0.4)) 
+
+
+Area_Landscape_Type <- quap(
+  alist(
+    SC ~ dnorm( mu , sigma ) ,
+    mu <- a[Type] + bSL*SL + bSA*SA,
+    a[Type] ~ dnorm( 0 , 1 ) ,
+    bSL ~ dnorm( 0 , 1 ),
+    bSA ~ dnorm( 0 , 1 ),
+    sigma ~ dexp( 1 )
+  ) , data = d )
+
+
+precis(Area_Landscape_Type, depth = 2)
+plot(precis(Area_Landscape_Type, depth = 2))
