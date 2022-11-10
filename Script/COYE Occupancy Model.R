@@ -59,6 +59,34 @@ Second_Visit <- subset(Second_Visit, select = c(Study.ID, Species.Code))
 d_COYE <- merge(first_column, First_Visit, by=c('Study.ID'), all=TRUE)
 d_COYE <- merge(d_COYE, Second_Visit, by=c('Study.ID'), all=TRUE)
 
-##create index variable
+##create dummy variable
 
-ifelse(Site_Count$Type=="W", 1, 0)
+d_COYE$Species.Code.x <- ifelse(d_COYE$Species.Code.x=="COYE", 1, 0)
+d_COYE$Species.Code.y <- ifelse(d_COYE$Species.Code.y=="COYE", 1, 0)
+d_COYE[is.na(d_COYE)] = 0
+
+##Rename Columns
+colnames(d_COYE)
+colnames(d_COYE)[2] <- "Visit 1"
+colnames(d_COYE)[3] <- "Visit 2"
+
+##add landscape, area, and veg data
+
+covariates <- subset(selection_data, select = c(Study.Number, Area, Landscape, Veg))
+colnames(covariates)[1] <- "Study.ID"
+
+d_COYE <- merge(d_COYE, covariates, by=c('Study.ID'), all=TRUE)
+
+str(d_COYE)
+
+# Model fitting --------------------------------------------------------
+# Fit a non-spatial, single-species occupancy model
+occ_COYE <- PGOcc(occ.formula = ~ scale(selection_data$Landscape) + scale(selection_data$Veg), 
+             det.formula = ~ scale(date) + I(scale(date^2)) + scale(dur), 
+             data = data.goldfinch, 
+             n.samples = 5000, 
+             n.thin = 4, 
+             n.burn = 3000, 
+             n.chains = 3,
+             n.report = 500)
+summary(out)
