@@ -22,6 +22,7 @@ library(tibble)
 library(plyr)
 
 
+
 ##Load and check the data
 data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/MMP Data.csv")
 head(data)
@@ -31,6 +32,8 @@ n_distinct(data$Species.Code)
 selection_data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Site Selection/Final Sites.csv")
 head(selection_data)
 
+survey_details <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Survey Details.csv")
+head(survey_details)
 
 ##Create Detection dataset for COYE 
 d_COYE <- data %>%
@@ -70,23 +73,40 @@ colnames(d_COYE)
 colnames(d_COYE)[2] <- "Visit 1"
 colnames(d_COYE)[3] <- "Visit 2"
 
+y <- d_COYE
 ##add landscape, area, and veg data
 
 covariates <- subset(selection_data, select = c(Study.Number, Area, Landscape, Veg))
 colnames(covariates)[1] <- "Study.ID"
 
-d_COYE <- merge(d_COYE, covariates, by=c('Study.ID'), all=TRUE)
+d_COYE_cov <- merge(d_COYE, covariates, by=c('Study.ID'), all=TRUE)
 
-str(d_COYE)
+##Extract Coords
+Coords <- subset(selection_data, select = c(Study.Number, Lat, Long))
+
+##Extract Date
+Date <- subset(survey_details, select = c(Study.ID, Date))
+
+##Format df as list
+COYE<-list(y,covariates,Coords, Date)
+COYE
+
+names(COYE)
+names(COYE)[1] <- "y"
+names(COYE)[2] <- "occ.covs"
+names(COYE)[3] <- "coords"
+names(COYE)[4] <- "det.covs"
+
+str(COYE)
 
 # Model fitting --------------------------------------------------------
 # Fit a non-spatial, single-species occupancy model
-occ_COYE <- PGOcc(occ.formula = ~ scale(selection_data$Landscape) + scale(selection_data$Veg), 
-             det.formula = ~ scale(date) + I(scale(date^2)) + scale(dur), 
-             data = data.goldfinch, 
+occ_COYE <- PGOcc(occ.formula = ~ scale(Landscape) + scale(Veg), 
+             det.formula = ~ scale(date) + I(scale(date^2)), 
+             data = COYE, 
              n.samples = 5000, 
              n.thin = 4, 
              n.burn = 3000, 
              n.chains = 3,
              n.report = 500)
-summary(out)
+summary(occ_COYE)
