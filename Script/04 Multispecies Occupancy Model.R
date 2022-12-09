@@ -29,8 +29,6 @@ head(selection_data)
 survey_details <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Survey Details.csv")
 head(survey_details)
 
-
-
 save(y,file = "Species.Detection.Multi.SORA.RData")
 
 ##Create Guilds
