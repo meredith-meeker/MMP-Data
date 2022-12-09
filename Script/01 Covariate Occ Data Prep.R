@@ -8,12 +8,6 @@ library(dagitty)
 library(ggdag)
 library(dplyr)
 
-install.packages("spOccupancy")
-install.packages("MCMCvis")
-install.packages(c("sf", "stars", "pals", "cowplot"))
-install.packages("plyr")
-install.packages("unmarked")
-
 library(spOccupancy)
 library(MCMCvis)
 library(stars)
@@ -40,6 +34,10 @@ head(survey_details)
 
 covariates <- subset(selection_data, select = c(Area, Landscape, Veg, Habitat.Type))
 
+##create dummy variable
+
+covariates$Habitat.Type <- ifelse(covariates$Habitat.Type=="SWMP", 1, 0)
+covariates$Habitat.Type <- ifelse(covariates$Habitat.Type=="1", 2, 1)
 
 
 ##Extract Coords
