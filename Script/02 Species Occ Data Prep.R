@@ -28,6 +28,11 @@ head(selection_data)
 survey_details <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Survey Details.csv")
 head(survey_details)
 
+##Create species list
+
+species.list <- list(unique(data$Species.Code))
+species.list
+
 ##Create Detection dataset for Species loop
 
 sp <- "LEBI"
