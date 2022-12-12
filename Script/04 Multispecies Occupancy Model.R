@@ -33,13 +33,13 @@ save(y,file = "Species.Detection.Multi.SORA.RData")
 
 ##Create Guilds
 ##focal
-load("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/GitHub/MMP-Data/Species.Detection.SORA.RData")
+load("Species.Detection.SORA.RData")
 SORA <- y
-load("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/GitHub/MMP-Data/Species.Detection.COGA.RData")
+load("Species.Detection.COGA.RData")
 COGA <- y
-load("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/GitHub/MMP-Data/Species.Detection.VIRA.RData")
+load("Species.Detection.VIRA.RData")
 VIRA <- y
-load("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/GitHub/MMP-Data/Species.Detection.LEBI.RData")
+load("Species.Detection.LEBI.RData")
 LEBI <- y
 
 species.data <- list(SORA, VIRA, COGA, LEBI)
@@ -57,8 +57,10 @@ tmp <- array(NA,dim = c(4,61,2))
 dimnames(tmp)[[1]] <- s
 dimnames(tmp)[[3]] <- Visit
 
-for (i in focal.species){ 
-  tmp[s,,] <- as.matrix(species.data[["i"]])
-  print(i)}
+for (sn in 1:length(focal.species)){ 
+  i = focal.species[sn]
+  tmp[sn,,] <- as.matrix(species.data[[i]])
+  print(i)
+  }
 
 
