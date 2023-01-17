@@ -29,6 +29,21 @@ Site_Count$Type <- (str_split_fixed(Site_Count$Study.ID, "[:digit:]", n=2)[,1])
 Site_Count$Type <- ifelse(Site_Count$Type=="W", 1, 0)
 Site_Count$Type <- ifelse(Site_Count$Type=="1", 2, 1)
 
+sp_sum <- data %>%
+  filter(Number.of.Individuals > 0) %>% #just non-zero observations
+  group_by(Species.Code) %>%
+  summarise(number_sites = length(unique(Study.ID)), # number of BBS routes where observed
+           ) # number of years where observed
+
+sp_means <- data %>% # including zero values
+  group_by(Species.Code) %>%
+  summarise(mean_count = mean(Number.of.Individuals)) %>% #mean counts of each species over the dataset
+  inner_join(.,sp_sum,
+             by = c("Species.Code")) %>%
+  arrange(mean_count)
+
+save(sp_sum, file = "Species Occurance.RData")
+
 ##Plot data
 
 #Box Plot
@@ -56,11 +71,12 @@ plot(x=Site_Count$Veg, y=Site_Count$distinct_Species.Code)
 
 d <- Site_Count
 d <- na.omit(d)
-
+d$distinct_species <- d$distinct_Species.Code
+d<- subset(d, select = -c(distinct_Species.Code))
 
 d$SL<- standardize(d$Landscape)
 d$SA<- standardize(d$Area)
-d$SC<- d$distinct_Species.Code
+d$SC<- d$distinct_species
 
 Area_Landscape <- quap(
   alist(
@@ -78,7 +94,7 @@ plot( NULL , xlim=c(-2,2) , ylim=c(-2,2), xlab = "Standardized Landscape", ylab 
 for ( i in 1:50 ) lines( c(-2,2) , mu[i,] , col=col.alpha("black",0.4)) 
 
 
-Area_Landscape_Type <- quap(
+Area_Landscape_Type <- ulam(
   alist(
     SC ~ dnorm( mu , sigma ) ,
     mu <- a[Type] + bSL*SL + bSA*SA,
@@ -91,3 +107,7 @@ Area_Landscape_Type <- quap(
 
 precis(Area_Landscape_Type, depth = 2)
 plot(precis(Area_Landscape_Type, depth = 2))
+
+post <- extract.samples(Area_Landscape_Type)
+diffHT <- post$a[,1] - post$a[,2]
+dens(diffHT, show.HPDI = 0.95)
