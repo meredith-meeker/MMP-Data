@@ -30,14 +30,11 @@ head(selection_data)
 survey_details <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Survey Details.csv")
 head(survey_details)
 
+veg_data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Veg Data Dominant Cover.csv")
+
 ##add landscape, area, and veg data
 
 covariates <- subset(selection_data, select = c(Area, Landscape, Veg, Habitat.Type))
-
-##create dummy variable
-
-covariates$Habitat.Type <- ifelse(covariates$Habitat.Type=="SWMP", 1, 0)
-covariates$Habitat.Type <- ifelse(covariates$Habitat.Type=="1", 2, 1)
 
 
 ##Extract Coords
@@ -100,3 +97,15 @@ names(Cov.gen)[2] <- "coords"
 names(Cov.gen)[3] <- "det.covs"
 
 save(Cov.gen, file = "General Covariates.RData")
+
+##Emergent Veg Data
+
+covariates_v <- subset(selection_data, select = c(Study.Number, Area, Landscape, Habitat.Type))
+Veg <- subset(veg_data, select = c(Join.iD, Robust.Emergent, Emergent))
+Veg$total <- (Veg$Robust.Emergent+Veg$Emergent)
+Veg$Study.Number <- Veg$Join.iD
+
+covariates_v <- merge(covariates_v, Veg, by=c("Study.Number"), all = TRUE)
+covariates_v <- subset(covariates_v, select = c(Area, Landscape, Habitat.Type, total))
+
+save(covariates_v, file = "Emergent Covariates.RData")
