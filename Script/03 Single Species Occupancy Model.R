@@ -30,7 +30,7 @@ survey_details <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fi
 head(survey_details)
 
 load("General Covariates.RData")
-load("Species.Detection.COYE.RData")
+load("Species.Detection.SWSP.RData")
 
 
 ## Join species and covariate data for the model 
@@ -47,7 +47,7 @@ str(m1_data)
 
 # Model fitting --------------------------------------------------------USGS
 # Fit a non-spatial, single-species occupancy model
-occ_COYE <- PGOcc(occ.formula = ~ scale(Landscape) + scale(Veg) + scale(Area) + (Habitat.Type), 
+occ_SWSP <- PGOcc(occ.formula = ~ scale(Landscape) + scale(Veg) + scale(Area) + (Habitat.Type), 
             det.formula = ~ scale(date + I(scale(date^2))) + noise, 
              data = m1_data, 
              n.samples = 5000, 
@@ -55,7 +55,7 @@ occ_COYE <- PGOcc(occ.formula = ~ scale(Landscape) + scale(Veg) + scale(Area) + 
              n.burn = 3000, 
              n.chains = 3,
              n.report = 500)
-summary(occ_COYE)
+summary(occ_SWSP)
 
 ## Plot summary
 
@@ -70,19 +70,17 @@ occ_cov <- MCMCplot(occ_SWSP$beta.samples, ref_ovl = TRUE, ci = c(50, 95))
 # Detection covariate effects --------- 
 MCMCplot(occ_SWSP$alpha.samples, ref_ovl = TRUE, ci = c(50, 95))
 
-##relationship graph 
-
-
 
 #Difference in Habitat Type
-coef(occ_SWSP)
-diff.HT <- extract.samples(occ_SWSP, n=10000)
+temp.betas <- occ_SWSP$beta.samples
+dif_swm_wet <- temp.betas[,"(Intercept)"]-temp.betas[,"Habitat.TypeWetland"]
+hist(dif_swm_wet)
 
 ## Spatial Model
 
 plot(m1_data$coords, pch = 19)
 
-COYE.sp <- spPGOcc(occ.formula = ~ scale(Landscape) + scale(Veg) + scale(Area) +(Habitat.Type), 
+SWSP.sp <- spPGOcc(occ.formula = ~ scale(Landscape) + scale(Veg) + scale(Area) +(Habitat.Type), 
                   det.formula = ~ scale(date) + I(scale(date^2)) + noise, 
                   data = m1_data, 
                   n.batch = 400, 
@@ -93,17 +91,17 @@ COYE.sp <- spPGOcc(occ.formula = ~ scale(Landscape) + scale(Veg) + scale(Area) +
                   n.burn = 5000, 
                   n.chains = 3,
                   n.report = 100)
-summary(COYE.sp)
+summary(SWSP.sp)
 
 # Occupancy covariate effects ---------
-MCMCplot(COYE.sp$beta.samples, ref_ovl = TRUE, ci = c(50, 95))
+MCMCplot(SWSP.sp$beta.samples, ref_ovl = TRUE, ci = c(50, 95))
 # Detection covariate effects --------- 
-MCMCplot(COYE.sp$alpha.samples, ref_ovl = TRUE, ci = c(50, 95))
+MCMCplot(SWSP.sp$alpha.samples, ref_ovl = TRUE, ci = c(50, 95))
 
 # 3. Model validation -----------------------------------------------------
 # Perform a posterior predictive check to assess model fit. 
-ppc.out <- ppcOcc(occ_COYE, fit.stat = 'freeman-tukey', group = 1)
-ppc.out.sp <- ppcOcc(COYE.sp, fit.stat = 'freeman-tukey', group = 1)
+ppc.out <- ppcOcc(occ_SWSP, fit.stat = 'freeman-tukey', group = 1)
+ppc.out.sp <- ppcOcc(SWSP.sp, fit.stat = 'freeman-tukey', group = 1)
 # Calculate a Bayesian p-value as a simple measure of Goodness of Fit.
 # Bayesian p-values between 0.1 and 0.9 indicate adequate model fit. 
 summary(ppc.out)
@@ -113,8 +111,8 @@ summary(ppc.out.sp)
 # Compute Widely Applicable Information Criterion (WAIC)
 # Lower values indicate better model fit. 
 # Non-spatial
-waicOcc(occ_COYE)
-waicOcc(COYE.sp)
+waicOcc(occ_SWSP)
+waicOcc(SWSP.sp)
 # Spatial
 
 ##Single Species Prediction
@@ -124,20 +122,20 @@ pred.vals.land <- seq(min(m1_data$occ.covs$Landscape),
                         max(m1_data$occ.covs$Landscape), 
                         length.out = 100)
 
-land.0 <- pred.vals.land.scale <- (pred.vals - mean(m1_data$occ.covs$Landscape)) / 
+land.0 <- pred.vals.land.scale <- (pred.vals.land - mean(m1_data$occ.covs$Landscape)) / 
   sd(m1_data$occ.covs$Landscape)
 
-veg.0 <- pred.vals.veg.scale <- (pred.vals - mean(m1_data$occ.covs$Veg)) / 
+veg.0 <- pred.vals.veg.scale <- (pred.vals.veg - mean(m1_data$occ.covs$Veg)) / 
   sd(m1_data$occ.covs$Veg)
 
-area.0 <- pred.vals.area.scale <- (pred.vals - mean(m1_data$occ.covs$Area)) / 
+area.0 <- pred.vals.area.scale <- (pred.vals.land - mean(m1_data$occ.covs$Area)) / 
   sd(m1_data$occ.covs$Area)
 
-pred.df <- as.matrix(data.frame(intercept = 1, Landscape = pred.vals.land.scale, 
+pred.df <- as.matrix(data.frame(intercept = 1, Landscape = pred.vals.land, 
                                 Veg = 0, Area = 0,  
                                 slope = 0))
 
-out.pred <- predict(occ_COYE, pred.df)
+out.pred <- predict(occ_SWSP, pred.df)
 
 str(out.pred)
 
@@ -152,12 +150,12 @@ ggplot(psi.plot.dat, aes(x = Landscape, y = psi.med)) +
   geom_line() + 
   theme_bw() + 
   scale_y_continuous(limits = c(0, 1)) + 
-  labs(x = 'Landscape (% cover)', y = 'Occupancy Probability') 
+  labs(x = 'Landscape', y = 'Occupancy Probability') 
 
 # Create prediction design matrix
 X.0 <- cbind(1, land.0, land.0^2, veg.0, area.0)
 # Predict at new locations
-out.pred <- predict(COYE.sp, X.0, coords.0)
+out.pred <- predict(SWSP.sp, X.0, coords.0)
 # Occupancy probability means
 psi.0.mean <- apply(out.pred$psi.0.samples, 2, mean)
 # Occupancy probability standard deviations
