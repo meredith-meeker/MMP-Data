@@ -235,20 +235,23 @@ load("Species.Detection.BWTE.RData")
 BWTE <- y
 load("Species.Detection.DCCO.RData")
 DCCO <- y
+load("Species.Detection.HOME.RData")
+HOME <- y
 
-species.data <- list(MALL, CAGO, WODU, BWTE, DCCO)
+species.data <- list(MALL, CAGO, WODU, BWTE, DCCO, HOME)
 names(species.data)[1] <- "MALL"
 names(species.data)[2] <- "CAGO"
 names(species.data)[3] <- "WODU"
 names(species.data)[4] <- "BWTE"
 names(species.data)[5] <- "DCCO"
+names(species.data)[6] <- "HOME"
 
-focal.species <- c("MALL", "CAGO", "WODU", "BWTE", "DCCO")
-s <- list("MALL", "CAGO", "WODU", "BWTE", "DCCO")
+focal.species <- c("MALL", "CAGO", "WODU", "BWTE", "DCCO", "HOME")
+s <- list("MALL", "CAGO", "WODU", "BWTE", "DCCO", "HOME")
 Site <- list(1:61)
 Visit <- list("Visit 1", "Visit 2")
 
-tmp <- array(NA,dim = c(5,61,2))
+tmp <- array(NA,dim = c(6,61,2))
 dimnames(tmp)[[1]] <- s
 dimnames(tmp)[[3]] <- Visit
 
@@ -374,3 +377,5 @@ MCMCplot(wet.all.out$beta.comm.samples, ref_ovl = TRUE, ci = c(50, 95))
 MCMCplot(wet.all.out$alpha.comm.samples, ref_ovl = TRUE, ci = c(50, 95))
 # Occupancy species-specific effects
 MCMCplot(wet.all.out$beta.samples, ref_ovl = TRUE, ci = c(50, 95))
+
+
