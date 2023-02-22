@@ -103,3 +103,70 @@ y <- y %>%
 
 
 save(y,file = "Outputs/Species.Detection.WISN.RData")
+
+
+## Combined detection covariates 
+
+Date <- subset(survey_details, select = c(Site.ID, Visit, Date))
+Date.1 <-subset(Date, Visit=="1")
+Date.2 <-subset(Date, Visit=="2")
+Date.3 <-subset(Date, Visit=="3")
+Date.4 <-subset(Date, Visit=="4")
+Date.5 <-subset(Date, Visit=="5")
+
+Date <- merge(Date.1, Date.2, ('Site.ID'), all=TRUE)
+colnames(Date)[2] <- "Visit 1"
+colnames(Date)[3] <- "Date 1"
+colnames(Date)[4] <- "Visit 2"
+colnames(Date)[5] <- "Date 2"
+Date <- merge(Date, Date.3, by=c('Site.ID'), all=TRUE)
+colnames(Date)[6] <- "Visit 3"
+colnames(Date)[7] <- "Date 3"
+Date <- merge(Date, Date.4, by=c('Site.ID'), all=TRUE)
+colnames(Date)[8] <- "Visit 4"
+colnames(Date)[9] <- "Date 4"
+Date <- merge(Date, Date.5, by=c('Site.ID'), all=TRUE)
+colnames(Date)[10] <- "Visit 5"
+colnames(Date)[11] <- "Date 5"
+Date.1<- lubridate::dmy(Date$Date.1)
+Date.2<- lubridate::dmy(Date$Date.2)
+Date.3<- lubridate::dmy(Date$Date.3)
+Date.4<- lubridate::dmy(Date$Date.4)
+Date.5<- lubridate::dmy(Date$Date.5)
+Date.1 <- as.integer(gsub("-", "", Date.1))
+Date.2 <- as.integer(gsub("-", "", Date.2))
+Date.3 <- as.integer(gsub("-", "", Date.3))
+Date.4 <- as.integer(gsub("-", "", Date.4))
+Date.5 <- as.integer(gsub("-", "", Date.5))
+Date <- data.frame(Date.1, Date.2, Date.3, Date.4, Date.5)
+Date_mat <- Date %>% 
+  select(Date.1,Date.2, Date.3, Date.4, Date.5) %>% 
+  as.matrix()
+##Extract Noise
+Noise <- subset(survey_details, select = c(Site.ID, Visit, Noise))
+Noise.1 <-subset(Noise, Visit=="1")
+Noise.2 <-subset(Noise, Visit=="2")
+Noise.3 <-subset(Noise, Visit=="3")
+Noise.4 <-subset(Noise, Visit=="4")
+Noise.5 <-subset(Noise, Visit=="5")
+
+Noise <- merge(Noise.1, Noise.2, ('Site.ID'), all=TRUE)
+colnames(Noise)[2] <- "Visit 1"
+colnames(Noise)[3] <- "Noise 1"
+colnames(Noise)[4] <- "Visit 2"
+colnames(Noise)[5] <- "Noise 2"
+Noise <- merge(Noise, Noise.3, by=c('Site.ID'), all=TRUE)
+colnames(Noise)[6] <- "Visit 3"
+colnames(Noise)[7] <- "Noise 3"
+Noise <- merge(Noise, Noise.4, by=c('Site.ID'), all=TRUE)
+colnames(Noise)[8] <- "Visit 4"
+colnames(Noise)[9] <- "Noise 4"
+Noise <- merge(Noise, Noise.5, by=c('Site.ID'), all=TRUE)
+colnames(Noise)[10] <- "Visit 5"
+colnames(Noise)[11] <- "Noise 5"
+Noise <- data.frame(Noise)
+Noise <- subset(Noise, select = c (Site.ID, Noise.1,Noise.2, Noise.3, Noise.4, Noise.5))
+
+Noise_mat <- Noise %>% 
+  select(Noise.1,Noise.2, Noise.3, Noise.4, Noise.5) %>% 
+  as.matrix()
