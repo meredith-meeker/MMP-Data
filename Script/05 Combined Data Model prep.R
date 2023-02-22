@@ -170,3 +170,32 @@ Noise <- subset(Noise, select = c (Site.ID, Noise.1,Noise.2, Noise.3, Noise.4, N
 Noise_mat <- Noise %>% 
   select(Noise.1,Noise.2, Noise.3, Noise.4, Noise.5) %>% 
   as.matrix()
+
+##Extract Survey Type
+Method <- subset(survey_details, select = c(Site.ID, Visit, Method))
+Method.1 <-subset(Method, Visit=="1")
+Method.2 <-subset(Method, Visit=="2")
+Method.3 <-subset(Method, Visit=="3")
+Method.4 <-subset(Method, Visit=="4")
+Method.5 <-subset(Method, Visit=="5")
+
+Method <- merge(Method.1, Method.2, ('Site.ID'), all=TRUE)
+colnames(Method)[2] <- "Visit 1"
+colnames(Method)[3] <- "Method 1"
+colnames(Method)[4] <- "Visit 2"
+colnames(Method)[5] <- "Method 2"
+Method <- merge(Method, Method.3, by=c('Site.ID'), all=TRUE)
+colnames(Method)[6] <- "Visit 3"
+colnames(Method)[7] <- "Method 3"
+Method <- merge(Method, Method.4, by=c('Site.ID'), all=TRUE)
+colnames(Method)[8] <- "Visit 4"
+colnames(Method)[9] <- "Method 4"
+Method <- merge(Method, Method.5, by=c('Site.ID'), all=TRUE)
+colnames(Method)[10] <- "Visit 5"
+colnames(Method)[11] <- "Method 5"
+Method <- data.frame(Method)
+Method <- subset(Method, select = c (Site.ID, Method.1,Method.2, Method.3, Method.4, Method.5))
+
+Method_mat <- Method %>% 
+  select(Method.1,Method.2, Method.3, Method.4, Method.5) %>% 
+  as.matrix()
