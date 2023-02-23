@@ -15,6 +15,9 @@ library(cowplot)
 library(tibble)
 library(plyr)
 library(unmarked)
+library(lubridate)
+install.packages("DataEditR")
+library(DataEditR)
 
 ##Load and check the data
 data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Combined Species Detections .csv")
@@ -29,7 +32,7 @@ species.list
 
 ##Create Detection dataset for Species loop
 
-sp <- "WISN"
+sp <- "YEWA"
 
 d_sp <- data 
 
@@ -102,10 +105,15 @@ y <- y %>%
   as.matrix()
 
 
-save(y,file = "Outputs/Species.Detection.WISN.RData")
+save(y,file = "Outputs/Species.Detection.YEWA.RData")
 
 
 ## Combined detection covariates 
+
+first_column <- data.frame(unique(data$Study.ID))
+first_column$Study.ID <- first_column$unique.data.Study.ID.
+first_column <- subset(first_column, select = c(Study.ID))
+colnames(first_column)[1] <- "Site.ID"
 
 Date <- subset(survey_details, select = c(Site.ID, Visit, Date))
 Date.1 <-subset(Date, Visit=="1")
@@ -114,7 +122,8 @@ Date.3 <-subset(Date, Visit=="3")
 Date.4 <-subset(Date, Visit=="4")
 Date.5 <-subset(Date, Visit=="5")
 
-Date <- merge(Date.1, Date.2, ('Site.ID'), all=TRUE)
+Date <- merge(first_column, Date.1, by=c ('Site.ID'), all=TRUE)
+Date <- merge(Date.1, Date.2, by=c ('Site.ID'), all=TRUE)
 colnames(Date)[2] <- "Visit 1"
 colnames(Date)[3] <- "Date 1"
 colnames(Date)[4] <- "Visit 2"
@@ -128,21 +137,26 @@ colnames(Date)[9] <- "Date 4"
 Date <- merge(Date, Date.5, by=c('Site.ID'), all=TRUE)
 colnames(Date)[10] <- "Visit 5"
 colnames(Date)[11] <- "Date 5"
-Date.1<- lubridate::dmy(Date$Date.1)
-Date.2<- lubridate::dmy(Date$Date.2)
-Date.3<- lubridate::dmy(Date$Date.3)
-Date.4<- lubridate::dmy(Date$Date.4)
-Date.5<- lubridate::dmy(Date$Date.5)
+
+Date.1 <- lubridate::dmy(Date$`Date 1`)
+Date.2 <- lubridate::dmy(Date$`Date 2`)
+Date.3 <- lubridate::dmy(Date$`Date 3`)
+Date.4 <- lubridate::dmy(Date$`Date 4`)
+Date.5 <- lubridate::dmy(Date$`Date 5`)
+
 Date.1 <- as.integer(gsub("-", "", Date.1))
 Date.2 <- as.integer(gsub("-", "", Date.2))
 Date.3 <- as.integer(gsub("-", "", Date.3))
 Date.4 <- as.integer(gsub("-", "", Date.4))
 Date.5 <- as.integer(gsub("-", "", Date.5))
-Date <- data.frame(Date.1, Date.2, Date.3, Date.4, Date.5)
+
+Date <- data.frame(Date.1,Date.2, Date.3, Date.4, Date.5)
 Date_mat <- Date %>% 
   select(Date.1,Date.2, Date.3, Date.4, Date.5) %>% 
   as.matrix()
+
 ##Extract Noise
+
 Noise <- subset(survey_details, select = c(Site.ID, Visit, Noise))
 Noise.1 <-subset(Noise, Visit=="1")
 Noise.2 <-subset(Noise, Visit=="2")
@@ -150,6 +164,7 @@ Noise.3 <-subset(Noise, Visit=="3")
 Noise.4 <-subset(Noise, Visit=="4")
 Noise.5 <-subset(Noise, Visit=="5")
 
+Noise <- merge(first_column, Noise.1, by=c ('Site.ID'), all=TRUE)
 Noise <- merge(Noise.1, Noise.2, ('Site.ID'), all=TRUE)
 colnames(Noise)[2] <- "Visit 1"
 colnames(Noise)[3] <- "Noise 1"
@@ -172,6 +187,7 @@ Noise_mat <- Noise %>%
   as.matrix()
 
 ##Extract Survey Type
+
 Method <- subset(survey_details, select = c(Site.ID, Visit, Method))
 Method.1 <-subset(Method, Visit=="1")
 Method.2 <-subset(Method, Visit=="2")
@@ -199,3 +215,38 @@ Method <- subset(Method, select = c (Site.ID, Method.1,Method.2, Method.3, Metho
 Method_mat <- Method %>% 
   select(Method.1,Method.2, Method.3, Method.4, Method.5) %>% 
   as.matrix()
+
+det.covs.combined <- list(Date_mat, Method_mat, Noise_mat)
+names(det.covs.combined)
+names(det.covs.combined)[1] <- "date"
+names(det.covs.combined)[2] <- "method"
+names(det.covs.combined)[3] <- "noise"
+
+save(det.covs.combined, file = "Combined Covariates.RData")
+
+## Fix NA Values
+y <-as.data.frame(y)
+y[14, 5] = NA
+y[15, 5] = NA
+y[18, 5] = NA
+y[24, 5] = NA
+y[27, 5] = NA
+y[28, 5] = NA
+y[31, 5] = NA
+y[37, 5] = NA
+y[38, 5] = NA
+y[38, 4] = NA
+y[38, 3] = NA
+y[40, 5] = NA
+y[42, 5] = NA
+y[43, 5] = NA
+y[44, 5] = NA
+y[44, 4] = NA
+y[44, 3] = NA
+y[50, 5] = NA
+y[57, 5] = NA
+y[58, 5] = NA
+y[61, 5] = NA
+y <-as.matrix(y)
+
+save(y,file = "Outputs/Species.Detection.YEWA.RData")
