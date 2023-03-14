@@ -43,27 +43,30 @@ load("Outputs/Species.Detection.LEBI.RData")
 LEBI <- y
 load("Outputs/Species.Detection.PBGR.RData")
 PBGR <- y
+load("Outputs/Species.Detection.AMBI.RData")
+AMBI <- y
 
-species.data <- list(SORA, VIRA, COGA, LEBI, PBGR)
+species.data <- list(SORA, VIRA, COGA, LEBI, PBGR, AMBI)
 names(species.data)[1] <- "SORA"
 names(species.data)[2] <- "VIRA"
 names(species.data)[3] <- "COGA"
 names(species.data)[4] <- "LEBI"
 names(species.data)[5] <- "PBGR"
+names(species.data)[6] <- "AMBI"
 
-focal.species <- c("COGA", "LEBI", "SORA", "VIRA", "PBGR")
-s <- list("COGA", "LEBI", "SORA", "VIRA", "PBGR")
+obligate.species <- c("COGA", "LEBI", "SORA", "VIRA", "PBGR", "AMBI")
+s <- list("COGA", "LEBI", "SORA", "VIRA", "PBGR", "AMBI")
 Site <- list(1:61)
 Visit <- list("Visit 1", "Visit 2","Visit 3", "Visit 4", "Visit 5")
 
 ##Create data Array
 
-tmp <- array(NA,dim = c(5,61,5))
+tmp <- array(NA,dim = c(6,61,5))
 dimnames(tmp)[[1]] <- s
 dimnames(tmp)[[3]] <- Visit
 
-for (sn in 1:length(focal.species)){ 
-  i = focal.species[sn]
+for (sn in 1:length(obligate.species)){ 
+  i = obligate.species[sn]
   tmp[sn,,] <- as.matrix(species.data[[i]])
   print(i)
 }
@@ -86,11 +89,11 @@ names(m1_data)[4] <- "det.covs"
 out <- sfMsPGOcc(occ.formula = ~ scale(Landscape) + scale(total) + scale(Area) + (Habitat.Type),
                  det.formula = ~ scale(date + I(scale(date^2))) + noise + method, 
                  data = m1_data, 
-                 n.batch = 400, 
+                 n.batch = 1000, 
                  batch.length = 25,
                  n.thin = 10, 
                  n.burn = 5000, 
-                 n.chains = 1,
+                 n.chains = 4,
                  NNGP = TRUE,
                  n.factors = 4,
                  n.neighbors = 5,
@@ -98,6 +101,7 @@ out <- sfMsPGOcc(occ.formula = ~ scale(Landscape) + scale(total) + scale(Area) +
                  cov.model = 'exponential',
                  n.report = 10)
 summary(out, level = 'community')
+summary(out, level = 'species')
 
 # Occupancy community-level effects 
 MCMCplot(out$beta.comm.samples, ref_ovl = TRUE, ci = c(50, 95))
@@ -175,11 +179,11 @@ names(m2_data)[4] <- "det.covs"
 common.out <- sfMsPGOcc(occ.formula = ~ scale(Landscape) + scale(total) + scale(Area) + (Habitat.Type),
                         det.formula = ~ scale(date + I(scale(date^2))) + noise + method, 
                         data = m2_data, 
-                        n.batch = 400, 
+                        n.batch = 1000, 
                         batch.length = 25,
                         n.thin = 10, 
                         n.burn = 5000, 
-                        n.chains = 1,
+                        n.chains = 4,
                         NNGP = TRUE,
                         n.factors = 4,
                         n.neighbors = 5,
@@ -244,11 +248,11 @@ names(m3_data)[4] <- "det.covs"
 water.out <- sfMsPGOcc(occ.formula = ~ scale(Landscape) + scale(total) + scale(Area) + (Habitat.Type),
                        det.formula = ~ scale(date + I(scale(date^2))) + noise + method, 
                        data = m3_data, 
-                       n.batch = 400, 
+                       n.batch = 1000, 
                        batch.length = 25,
                        n.thin = 10, 
                        n.burn = 5000, 
-                       n.chains = 1,
+                       n.chains = 4,
                        NNGP = TRUE,
                        n.factors = 4,
                        n.neighbors = 5,
@@ -256,6 +260,7 @@ water.out <- sfMsPGOcc(occ.formula = ~ scale(Landscape) + scale(total) + scale(A
                        cov.model = 'exponential',
                        n.report = 10)
 summary(water.out, level = 'community')
+summary(water.out, level = 'species')
 
 # Occupancy community-level effects 
 MCMCplot(water.out$beta.comm.samples, ref_ovl = TRUE, ci = c(50, 95))
@@ -330,11 +335,11 @@ names(m4_data)[4] <- "det.covs"
 wet.all.out <- sfMsPGOcc(occ.formula = ~ scale(Landscape) + scale(total) + scale(Area) + (Habitat.Type),
                          det.formula = ~ scale(date + I(scale(date^2))) + noise + method, 
                          data = m4_data, 
-                         n.batch = 400, 
+                         n.batch = 1000, 
                          batch.length = 25,
                          n.thin = 10, 
                          n.burn = 5000, 
-                         n.chains = 1,
+                         n.chains = 4,
                          NNGP = TRUE,
                          n.factors = 4,
                          n.neighbors = 5,

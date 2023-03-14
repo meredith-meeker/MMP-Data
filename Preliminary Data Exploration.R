@@ -22,16 +22,26 @@ Site_Count <-data %>%
   summarize(distinct_Species.Code = n_distinct(Species.Code))
 head(Site_Count)
 
+##Combined Summary
+com.data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Combined Species Detections .csv")
+head(com.data)
+
+com.survey_details <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Combined survey details.csv")
+
+Com.Site_Count <-com.data %>%
+  group_by(Study.ID) %>%
+  summarize(distinct_Species.Code = n_distinct(Species.Code))
+head(Com.Site_Count)
+
 ##create Habitat Type Column and Index
-Site_Count$Type <- (str_split_fixed(Site_Count$Study.ID, "[:digit:]", n=2)[,1])
+Com.Site_Count$Type <- (str_split_fixed(Com.Site_Count$Study.ID, "[:digit:]", n=2)[,1])
 
 
-Site_Count$Type <- ifelse(Site_Count$Type=="W", 1, 0)
-Site_Count$Type <- ifelse(Site_Count$Type=="1", 2, 1)
+Com.Site_Count$Type <- ifelse(Com.Site_Count$Type=="W", 1, 0)
+Com.Site_Count$Type <- ifelse(Com.Site_Count$Type=="1", 2, 1)
 
-sp_sum <- data %>%
-  filter(Number.of.Individuals > 0) %>% #just non-zero observations
-  group_by(Species.Code) %>%
+sp_sum <- com.data %>%
+   group_by(Species.Code) %>%
   summarise(number_sites = length(unique(Study.ID)), # number of BBS routes where observed
            ) # number of years where observed
 

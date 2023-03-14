@@ -16,7 +16,6 @@ library(tibble)
 library(plyr)
 library(unmarked)
 library(lubridate)
-install.packages("DataEditR")
 library(DataEditR)
 
 ##Load and check the data
@@ -32,7 +31,7 @@ species.list
 
 ##Create Detection dataset for Species loop
 
-sp <- "YEWA"
+sp <- "MALL"
 
 d_sp <- data 
 
@@ -40,7 +39,6 @@ head(d_sp)
 d_sp_all <- subset(data, Species.Code==sp)
 
 d_sp <- subset(d_sp_all, select = -c(Method))
-
 
 
 first_column <- data.frame(unique(data$Study.ID))
@@ -56,17 +54,16 @@ Second_Visit <- subset(Second_Visit, Species.Code ==sp)
 Second_Visit <- subset(Second_Visit, select = c(Study.ID, Species.Code))
 
 Third_Visit <- subset(data, Visit.Number == 3)
-Third_Visit <- subset(Second_Visit, Species.Code ==sp)
-Third_Visit <- subset(Second_Visit, select = c(Study.ID, Species.Code))
+Third_Visit <- subset(Third_Visit, Species.Code ==sp)
+Third_Visit <- subset(Third_Visit, select = c(Study.ID, Species.Code))
 
 Fourth_Visit <- subset(data, Visit.Number == 4)
-Fourth_Visit <- subset(Second_Visit, Species.Code ==sp)
-Fourth_Visit <- subset(Second_Visit, select = c(Study.ID, Species.Code))
+Fourth_Visit <- subset(Fourth_Visit, Species.Code ==sp)
+Fourth_Visit <- subset(Fourth_Visit, select = c(Study.ID, Species.Code))
 
 Fifth_Visit <- subset(data, Visit.Number == 5)
-Fifth_Visit <- subset(Second_Visit, Species.Code ==sp)
-Fifth_Visit <- subset(Second_Visit, select = c(Study.ID, Species.Code))
-
+Fifth_Visit <- subset(Fifth_Visit, Species.Code ==sp)
+Fifth_Visit <- subset(Fifth_Visit, select = c(Study.ID, Species.Code))
 
 
 d_sp <- merge(first_column, First_Visit, by=c('Study.ID'), all=TRUE)
@@ -105,7 +102,7 @@ y <- y %>%
   as.matrix()
 
 
-save(y,file = "Outputs/Species.Detection.YEWA.RData")
+save(y,file = "Outputs/Species.Detection.MALL.RData")
 
 
 ## Combined detection covariates 
@@ -249,4 +246,4 @@ y[58, 5] = NA
 y[61, 5] = NA
 y <-as.matrix(y)
 
-save(y,file = "Outputs/Species.Detection.YEWA.RData")
+save(y,file = "Outputs/Species.Detection.MALL.RData")

@@ -30,7 +30,9 @@ head(selection_data)
 survey_details <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Survey Details.csv")
 head(survey_details)
 
-veg_data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Veg Data Dominant Cover.csv")
+veg_data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Veg Data.csv")
+
+het_data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Data/Simpson's D.csv")
 
 ##add landscape, area, and veg data
 
@@ -109,3 +111,27 @@ covariates_v <- merge(covariates_v, Veg, by=c("Study.Number"), all = TRUE)
 covariates_v <- subset(covariates_v, select = c(Area, Landscape, Habitat.Type, total))
 
 save(covariates_v, file = "Emergent Covariates.RData")
+
+##Heterogeneity Index
+
+covariates_sd <- subset(selection_data, select = c(Study.Number, Area, Landscape, Habitat.Type))
+Het <- subset(het_data, select = c(Study.ID, D.1))
+Het$Study.Number <- Het$Study.ID
+
+
+covariates_sd <- merge(covariates_sd, Het, by=c("Study.Number"), all = TRUE)
+covariates_sd <- subset(covariates_sd, select = c(Area, Landscape, Habitat.Type, D.1))
+
+save(covariates_sd, file = "Diversity Index Covariates")
+
+## Impervious Area
+
+covariates_imp <- subset(selection_data, select = c(Study.Number, Area, Landscape, Habitat.Type))
+Imp <- subset(veg_data, select = c(Join.iD, Impervious))
+Imp$Study.Number <- Imp$Join.iD
+
+
+covariates_imp <- merge(covariates_imp, Imp, by=c("Study.Number"), all = TRUE)
+covariates_imp <- subset(covariates_imp, select = c(Area, Landscape, Habitat.Type, Impervious))
+
+save(covariates_imp, file = "Impervious Covariates")
