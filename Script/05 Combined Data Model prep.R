@@ -17,6 +17,7 @@ library(plyr)
 library(unmarked)
 library(lubridate)
 library(DataEditR)
+library(posterior)
 
 ##Load and check the data
 data <- read.csv("C:/Users/mmeek/OneDrive/Documents/Master's Thesis/Fieldwork/Combined Species Detections .csv")
@@ -31,7 +32,7 @@ species.list
 
 ##Create Detection dataset for Species loop
 
-sp <- "MALL"
+sp <- "BCNH"
 
 d_sp <- data 
 
@@ -102,7 +103,7 @@ y <- y %>%
   as.matrix()
 
 
-save(y,file = "Outputs/Species.Detection.MALL.RData")
+save(y,file = "Outputs/Species.Detection.BCNH.RData")
 
 
 ## Combined detection covariates 
@@ -246,4 +247,4 @@ y[58, 5] = NA
 y[61, 5] = NA
 y <-as.matrix(y)
 
-save(y,file = "Outputs/Species.Detection.MALL.RData")
+save(y,file = "Outputs/Species.Detection.BCNH.RData")
