@@ -59,8 +59,9 @@ save(sp_sum, file = "Species Occurance.RData")
 #Box Plot
 
 Number_of_Species <- Site_Count$distinct_Species.Code
-Habitat_Index <- Site_Count$Type
-
+Habitat_Index <- Com.Site_Count$Type
+# labels for Axis
+label=c("SWMP","Natural Wetlands")
 
 boxplot(Number_of_Species~Habitat_Index,
         data=Site_Count,
@@ -68,7 +69,10 @@ boxplot(Number_of_Species~Habitat_Index,
         xlab="Habitat Type",
         ylab="Number of Species",
         col="blue",
-        border="black")
+        border="black",
+        names = label)
+
+
 
 #Linear Regression 
 Site_Count$Veg <- selection_data$Veg

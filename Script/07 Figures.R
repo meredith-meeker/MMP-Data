@@ -27,6 +27,22 @@ cbPalette <- c(  "#56B4E9", "#000000",  "#D55E00")
 ##set point offset
 
 dodge <- position_dodge(width=0.25) 
+##Pond Type Difference
+##Community plot models 1, 2, 4
+Diff_com1 <- m1_summary_com[6,]
+Diff_com2 <- m2_summary_com[6,]
+Diff_com4 <- m4_summary_com[6,]
+Diff_com <- bind_rows(Diff_com1, Diff_com2, Diff_com4)
+Com <- c("Focal", "Common", "All")
+Diff_com$Com <- Com
+
+Com_Diff <- ggplot(data = Diff_com) +
+  geom_pointrange(aes(reorder(Com, -mean), x=mean, xmin=q5, xmax=q95, col=Com)) + 
+  scale_colour_manual(values = cbPalette)+
+  labs(y= "Model Guild", x = "Posterior Estimate of the Mean Difference between the Occupancy of SWMP - Occupancy of Natural Wetlands")+
+  theme_bw()
+
+plot(Com_Diff)
 
 ##Emergent Vegetation
 ## Subset Data
@@ -159,9 +175,9 @@ Veg_com_het <- bind_rows(Veg_com5, Veg_com7, Veg_com8)
 Com <- c("Focal", "Common", "All")
 Veg_com_het$Com <- Com
 
-Com_Veg_het <- ggplot(data = Veg_com) +
+Com_Veg_het <- ggplot(data = Veg_com_het) +
   geom_pointrange(aes(reorder(Com, -mean), x=mean, xmin=q5, xmax=q95))
-plot(Com_Veg)
+plot(Com_Veg_het)
 
 ##Species Model
 Veg_sp5 <- m8_summary_sp[13:18,]
@@ -245,7 +261,23 @@ plot(joined_plot)
 ##Patchwork
 comb_Area+comb_land+comb_Veg+plot_layout(guides = "collect")
 
+##Plot Hyper parameters together
+Land_com$type <- "Landscape Composition"
+Area_com$type <- "Area"
+Veg_com$type <- "Emergent Vegetation"
+Veg_com_het$type <- "Vegetation Heterogeneity**"
+joined_data_com <- rbind(Land_com, Area_com, Veg_com, Veg_com_het)
 
+joined_plot_com <- ggplot(data = joined_data_com) + 
+  geom_pointrange(aes(y= reorder(Com, -mean), x=mean, xmin=q5, xmax=q95, 
+ col= Com), position=dodge)+
+  facet_grid(~factor(type, levels=c('Landscape Composition', 'Vegetation Heterogeneity**', 'Emergent Vegetation', 'Area'))) +
+  geom_vline(xintercept=0,linetype=3) +
+  scale_colour_manual(values = cbPalette)+
+  labs(y= "Bird Species code", x = "Posterior Mean Estimate")+
+  theme_bw()
+
+plot(joined_plot_com)
 
 ##Detection Variables 
 ## Subset Data
